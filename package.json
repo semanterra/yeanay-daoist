@@ -1,0 +1,44 @@
+{
+  "name": "@yeanay/yeanay-daoist",
+  "version": "0.1.0",
+  "repository": "semanterra/yeanay-daoist",
+  "description": "yeanay code, config and docs shared across server and client",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "clean": "rm -rf lib coverage",
+    "lint": "npx tslint --project . --format verbose",
+    "prepublishOnly": "npm run clean && npm run build && npm run lint && npm run test",
+    "test": "jest --coverage",
+    "debug-jest": "node --inspect-brk node_modules/.bin/jest --runInBand"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/.*\\.(test|spec))\\.(ts|tsx)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^23.3.12",
+    "@types/node": "^10.12.18",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.12.0",
+    "tslint-microsoft-contrib": "^6.0.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "@yeanay/yeanay-commons": "^0.1.4",
+    "knex": "^0.16.3",
+    "remeda": "^0.0.7"
+  }
+}

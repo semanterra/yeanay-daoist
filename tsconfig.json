@@ -1,0 +1,14 @@
+{
+    "extends": "./node_modules/@yeanay/yeanay-commons/base/tsconfig.base.json",
+
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceRoot": ".",
+        "outDir": "./lib"
+    },
+    "include": [
+        "./src/**/*",
+        "./*"
+    ]
+}
+
