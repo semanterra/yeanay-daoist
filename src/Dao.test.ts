@@ -14,7 +14,7 @@ let gdaoB:DaoB|undefined = undefined
 function getDaoA():DaoA { return gdaoA!}
 function getDaoB():DaoB { return gdaoB!}
 
-jest.setTimeout(5 * 60 * 1000)
+// jest.setTimeout(5 * 60 * 1000)
 
 beforeAll(async () => {
     await createTestSchema()
@@ -25,7 +25,9 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    await db!.destroy()
+    if ( db ) {
+        await db.destroy()
+    }
 })
 
 let lastKeyIndex: number = 0
