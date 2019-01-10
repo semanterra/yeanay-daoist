@@ -4,6 +4,8 @@ node_js:
 env:
   - YEANAY_TEST_DB="host=localhost port=5432 user=postgres dbname=yeanay_test"
 script: "npm run prepublishOnly"
+services:
+  - postgresql
 addons:
   postgresql: "10"
 before_script:
