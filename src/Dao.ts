@@ -1,10 +1,23 @@
-import { IDed, PrimaryKey } from '@yeanay/yeanay-commons'
+import { PrimaryKey, IDed, WithoutId } from '@yeanay/yeanay-commons'
 import * as Knex from 'knex'
 
 export type SchemaName = string
 export type TableName = string
 export type ColumnSet<DTO> = (keyof DTO)[]
 
+/*
+// todo remove here and import when commons published again
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+// For use in inserting records with autogen'd id
+export interface IDed<PK> {
+    id: PK
+}
+
+// For use in inserting records with autogen'd id
+export type WithoutId<T extends IDed<PK>, PK> = Omit<T, 'id'>
+
+// end todo
+*/
 
 /**
  * Dao is a base class for data access objects.
@@ -23,7 +36,7 @@ export type ColumnSet<DTO> = (keyof DTO)[]
  *
  * Some methods may no longer be in use.
  */
-export abstract class Dao<DTO, PK = PrimaryKey> {
+export abstract class Dao<DTO extends IDed<PK>, PK = PrimaryKey> {
 
     protected abstract businessKeyPropNames: (keyof DTO)[] | null
     protected businessKeyJoined?: string
@@ -49,23 +62,23 @@ export abstract class Dao<DTO, PK = PrimaryKey> {
         return this.columnSet.filter(c => cnames.includes(c))
     }
 
-    public async insert(dto: DTO): Promise<PK> {
+    public async insert(dto: WithoutId<DTO,PK>): Promise<PK> {
         const ids = await this.q().insert(dto).returning('id')
         return ids[0]
     }
 
-    public async insertAndKey(dto: DTO): Promise<PK> {
+    public async insertAndKey(dto: WithoutId<DTO,PK>): Promise<PK> {
         const ids = await this.q().insert(dto).returning('id')
         dto['id'] = ids[0]
         return ids[0]
     }
 
-    public async inserts(dtos: DTO[]): Promise<PK[]> {
+    public async inserts(dtos: WithoutId<DTO,PK>[]): Promise<PK[]> {
         const ids = await this.q().insert(dtos).returning('id')
         return ids
     }
 
-    public async insertAndKeys(dtos: DTO[]): Promise<PK> {
+    public async insertAndKeys(dtos: WithoutId<DTO,PK>[]): Promise<PK> {
         const ids = await this.q().insert(dtos).returning('id')
         dtos.forEach((dto, i) => dto['id'] = ids[i])
         return ids
@@ -77,7 +90,7 @@ export abstract class Dao<DTO, PK = PrimaryKey> {
     }
 
     /** find by primary key, return null if nonexistent */
-    public async findByPrimaryKey(id: PK): Promise<DTO & IDed | null> {
+    public async findByPrimaryKey(id: PK): Promise<DTO & IDed<PK> | null> {
         const rows = await this.q().select().where({ id })
         return rows[0] || null
     }
@@ -86,7 +99,7 @@ export abstract class Dao<DTO, PK = PrimaryKey> {
         return this.q().where({ id }).update(data)
     }
 
-    public async all(): Promise<(DTO & IDed)[]> {
+    public async all(): Promise<(DTO & IDed<PK>)[]> {
         return this.q().select()
     }
 
@@ -130,7 +143,7 @@ export abstract class Dao<DTO, PK = PrimaryKey> {
 
         let valuesPreparedString = ''
         let preparedValues: string[] = []
-        itemsArray.forEach(item => {
+        itemsArray.forEach((item:DTO) => {
             valuesPreparedString += '('
             for ( let i = 0; i < itemKeys.length - 1; i += 1 ) {
                 valuesPreparedString += '?, '
@@ -164,7 +177,7 @@ export abstract class Dao<DTO, PK = PrimaryKey> {
 
     /** querybuilder, used heavily in subclasses */
     protected q = (tableName: TableName = this.tableName) => {
-        // Assume schemaName is valid, tableName may include schema
+        // Assume schemaName is valid, tableName may include schema (which is dropped here)
         const dotPos = tableName.indexOf('.')
         const simpleTableName = dotPos < 0 ? tableName : tableName.substr(dotPos + 1)
         return this.db.queryBuilder().withSchema(this.schemaName).table(simpleTableName)
