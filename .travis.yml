@@ -6,7 +6,5 @@ env:
 script: "npm run prepublishOnly"
 services:
   - postgresql
-addons:
-  postgresql: "10"
 before_script:
   - psql -c 'create database yeanay_test;' -U postgres
